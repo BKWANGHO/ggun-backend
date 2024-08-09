@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -26,5 +27,12 @@ public class TradeDaoImpl implements TradeDao{
                 .where(trade.prdtName.eq(prdtName))
                 .fetch();
 
+    }
+
+    @Override
+    public List<TradeModel> getListByDate(LocalDateTime start,LocalDateTime end) {
+        return factory.selectFrom(trade)
+                .where(trade.regDate.between(start,end))
+                .fetch();
     }
 }

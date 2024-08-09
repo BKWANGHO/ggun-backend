@@ -13,5 +13,4 @@ public class TokenVo {
     private String accessToken;
     private String message;
     private String role;
-    // 스프링 시큐리티 설정에서 코딩
 }

@@ -21,14 +21,6 @@ public class UserController {
 
     @PostMapping("/login")
     public Mono<Messenger> login(@RequestBody UserModel param) {
-        log.info("::: 로그인 컨트롤러 파라미터 : {}",param.toString());
-
-        // Messenger m = Messenger.builder().message("SUCCESS").build();
-        // Mono<ResponseEntity<Messenger>> helloWorld = Mono.just(ResponseEntity.ok(m));
-
-        //switchIfEmpty는 전달받은 값이 null인 경우 새로운 Mono/Flux 로 변환
-        //defaultIfEmpty 는  defaultIfEmpty는 null을 대체하는 값을 지정한다
-        log.info("여기는 컨트롤러 : {}",userService.login(param));
         return userService.login(param).defaultIfEmpty(Messenger.builder().message("FAILURE").build());
     }
 
@@ -36,7 +28,6 @@ public class UserController {
 
     @GetMapping("/logout")
     public Mono<Messenger> logout(@RequestHeader("Authorization") String accessToken) {
-        log.info("1- 로그아웃 접속토큰 : {}", accessToken);
         Messenger m = Messenger.builder().message("SUCCESS").build();
         Mono<Messenger> logout = Mono.just(m);
         return logout;
@@ -50,7 +41,7 @@ public class UserController {
 
     @GetMapping("/detail/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<UserModel> getUserById(@PathVariable("userId") String userId) {
+    public Mono<UserModel> getUserById(@PathVariable("userId") Long userId) {
         return userService.getUserDetailById(userId);
     }
 
@@ -62,13 +53,13 @@ public class UserController {
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<UserModel> updateUser(@PathVariable("id") String id, @RequestBody UserModel userModel) {
+    public Mono<UserModel> updateUser(@PathVariable("id") Long id, @RequestBody UserModel userModel) {
         return userService.updateUser(id, userModel);
     }
 
     @DeleteMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> deleteUser(@PathVariable("id") String id) {
+    public Mono<Void> deleteUser(@PathVariable("id") Long id) {
         return userService.deleteUser(id);
     }
 

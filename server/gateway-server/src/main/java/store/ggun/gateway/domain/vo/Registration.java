@@ -4,5 +4,5 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum Registration {
-    LOCAL, GOOGLE;
+    LOCAL, GOOGLE, NAVER;
 }

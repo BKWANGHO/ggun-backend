@@ -52,6 +52,8 @@ public class AccountController {
         return ResponseEntity.ok(service.deposit(accountDto));
     }
 
+
+
     @PostMapping("/withdraw")
     public ResponseEntity<Messenger> withdraw(@RequestBody AccountDto accountDto){
         log.info("출금 입력정보 {} ",accountDto);
@@ -76,6 +78,10 @@ public class AccountController {
     @GetMapping("/detail")
     public ResponseEntity<Optional<AccountDto>> findById(@RequestParam long id){
         return ResponseEntity.ok(service.findById(id));
+    }
+    @PostMapping("/modify")
+    public ResponseEntity<Messenger> modifyByAccount(@RequestBody AccountDto accountDto){
+        return ResponseEntity.ok(service.modifyByAccount(accountDto));
     }
 
     @GetMapping("/count")

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @AllArgsConstructor
 @Log4j2
-public class ArticleDto  {
+public class ArticleDto {
     private Long id;
     private String title;
     private String content;

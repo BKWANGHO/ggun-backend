@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableDiscoveryClient
 public class AccountServiceApplication {
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         SpringApplication.run(AccountServiceApplication.class, args);
     }
 

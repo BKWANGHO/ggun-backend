@@ -16,7 +16,7 @@ public record OAuth2UserDto(
     public static OAuth2UserDto of(Registration registrationId, Map<String, Object> attributes) {
         return switch (registrationId) { // registration id별로 userInfo 생성
             case GOOGLE -> ofGoogle(attributes);
-//            case "kakao" -> ofKakao(attributes);
+            case NAVER -> ofGoogle(attributes);
             default -> null;
         };
     }

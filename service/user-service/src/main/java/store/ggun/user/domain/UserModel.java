@@ -5,10 +5,12 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import store.ggun.user.domain.vo.Registration;
+import store.ggun.user.domain.vo.Role;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @NoArgsConstructor
@@ -18,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity(name="users")
 @Builder
-public class UserModel extends BaseEntity implements UserDetails, Serializable {
+public class UserModel extends BaseEntity {
     @Id
     @Column(name = "users_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,14 +39,16 @@ public class UserModel extends BaseEntity implements UserDetails, Serializable {
     private String color;
     private String investmentPropensity;
     private String token;
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role roles;
+    private Registration registration;
 
-    @OneToMany(mappedBy = "writerId")
+    @OneToMany(mappedBy = "writerId", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ArticleModel> articles;
 
-    public UserModel(Long id, String role) {
+    public UserModel(Long id, Role roles) {
         this.id = id;
-        this.role = role;
+        this.roles = roles;
     }
 
     public UserModel(String username, String email) {
@@ -57,30 +61,4 @@ public class UserModel extends BaseEntity implements UserDetails, Serializable {
         return this.email;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(this.role));
-        return authorities;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
 }

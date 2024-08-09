@@ -1,6 +1,7 @@
 package store.ggun.gateway.filter;
-import java.util.List;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -9,12 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import store.ggun.gateway.domain.vo.ExceptionStatus;
 import store.ggun.gateway.domain.vo.Role;
+import store.ggun.gateway.exception.GatewayException;
 import store.ggun.gateway.service.provider.JwtTokenProvider;
+
+import java.util.List;
+import java.util.Objects;
 
 
 @Slf4j
@@ -30,38 +33,28 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
     @Data
     public static class Config {
-        private String headerName;
-        private String headerValue;
         private List<Role> roles;
     }
 
     @Override
     public GatewayFilter apply(Config config) {
-        return ((exchange, chain) -> {
-            log.info("Request URL: {}", exchange.getRequest().getURI());
-            if(!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION))
-                return onError(exchange, HttpStatus.UNAUTHORIZED, "No Authorization Header");
-
-            @SuppressWarnings("null")
-            String token = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-
-            if(token == null)
-                return onError(exchange, HttpStatus.UNAUTHORIZED, "No Token or Invalid Token");
-
-            String jwt = jwtTokenProvider.removeBearer(token);
-
-            if(!jwtTokenProvider.isTokenValid(jwt, false))
-                return onError(exchange, HttpStatus.UNAUTHORIZED, "Invalid Token");
-
-            List<Role> roles = jwtTokenProvider.extractRoles(jwt).stream().map(i -> Role.valueOf(i)).toList();
-
-            for(var i : config.getRoles()){
-                if(roles.contains(i))
-                    return chain.filter(exchange);
-            }
-
-            return onError(exchange, HttpStatus.UNAUTHORIZED, "No Permission");
-        });
+        return ((exchange, chain) ->
+                Mono.just(exchange)
+                        .filter(i -> exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION))
+                        .flatMap(i -> Mono.just(Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION))))
+                        .flatMap(i -> Mono.just(i.get(0)))
+                        .switchIfEmpty(Mono.error(new GatewayException(ExceptionStatus.UNAUTHORIZED,"No Authorization Header")))
+                        .filterWhen(i -> Mono.just(i.startsWith("Bearer ")))
+                        .flatMap(i -> Mono.just(jwtTokenProvider.removeBearer(i)))
+                        .filterWhen(i -> Mono.just(jwtTokenProvider.isTokenValid(i, false)))
+                        .switchIfEmpty(Mono.error(new GatewayException(ExceptionStatus.UNAUTHORIZED,"Invalid Token")))
+                        .flatMap(i -> Mono.just(jwtTokenProvider.extractRoles(i).stream().map(j -> Role.valueOf(j)).toList()))
+                        .filter(i -> i.stream().anyMatch(j -> config.getRoles().contains(j)))
+                        .switchIfEmpty(Mono.error(new GatewayException(ExceptionStatus.NO_PERMISSION, "No Permission")))
+                        .flatMap(i -> chain.filter(exchange))
+                        .onErrorResume(GatewayException.class, e -> onError(exchange, HttpStatusCode.valueOf(e.getStatus().getStatus().value()), e.getMessage()))
+                        .log()
+        );
     }
 
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatusCode httpStatusCode, String message){

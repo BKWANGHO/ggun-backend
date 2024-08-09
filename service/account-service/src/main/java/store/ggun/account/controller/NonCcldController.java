@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/non-cclds")
+@RequestMapping("/nonCclds")
 @CrossOrigin(origins = "*",allowedHeaders = "*")
 public class NonCcldController {
     private final NonCcldService nonCcldService;

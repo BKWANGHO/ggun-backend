@@ -1,5 +1,4 @@
 package store.ggun.alarm.component;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;

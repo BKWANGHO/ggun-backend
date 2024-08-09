@@ -1,9 +1,9 @@
 package store.ggun.user.service;
 
 
-import org.springframework.http.ResponseEntity;
-import store.ggun.user.domain.UserDto;
+import store.ggun.user.domain.PrincipalUserDetails;
 import store.ggun.user.domain.TokenVo;
+import store.ggun.user.domain.UserDto;
 import store.ggun.user.domain.UserModel;
 
 public interface UserService {
@@ -24,6 +24,7 @@ public interface UserService {
                 .asset(dto.getAsset())
                 .color(dto.getColor())
                 .investmentPropensity(dto.getInvestmentPropensity())
+                .roles(dto.getRoles())
                 .build();
     }
 
@@ -43,12 +44,13 @@ public interface UserService {
                 .asset(model.getAsset())
                 .color(model.getColor())
                 .investmentPropensity(model.getInvestmentPropensity())
+                .roles(model.getRoles())
                 .build();
     }
 
     TokenVo join(UserDto param);
 
-    TokenVo login(UserDto userDto);
+    PrincipalUserDetails login(UserDto userDto);
 
     TokenVo modify(UserDto userDto);
 

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Document(collection = "notices")
 public class NotificationModel {
     @Id
-    private Long id;
+    private String id;
     private String roomId;
     private String msg;
     private String sender;

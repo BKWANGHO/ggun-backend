@@ -12,13 +12,13 @@ import store.ggun.alarm.domain.dto.EmailDto;
 import store.ggun.alarm.serviceImpl.EmailServiceImpl;
 
 @RestController
-@RequestMapping("/Admin-email")
+@RequestMapping("/AdminEmail")
 @RequiredArgsConstructor
 public class EmailController {
 
     private final EmailServiceImpl emailServiceImpl;
 
-    @PostMapping("/Admin-send")
+    @PostMapping("/AdminSend")
     public Mono<ResponseEntity<String>> sendMail(@RequestBody EmailDto emailDto) {
         return emailServiceImpl.sendEmail(emailDto.getEmail(), emailDto.getSubject(), emailDto.getMessage())
                 .thenReturn(ResponseEntity.ok("Email sent successfully"))
@@ -26,7 +26,7 @@ public class EmailController {
                         .body("Failed to send mail: " + e.getMessage())));
     }
 
-    @PostMapping("/Admin-send-all")
+    @PostMapping("/AdminSendAll")
     public Mono<ResponseEntity<String>> sendAllMail(@RequestBody EmailDto emailDto) {
         return emailServiceImpl.sendAllMail(emailDto.getRecipients(), emailDto.getSubject(), emailDto.getMessage());
     }

@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/own-stocks")
+@RequestMapping("/ownStocks")
 @CrossOrigin(origins = "*",allowedHeaders = "*")
 @Slf4j
 public class OwnStockController {
@@ -30,6 +30,16 @@ public class OwnStockController {
     @PostMapping("/save")
     public ResponseEntity<Messenger> save(@RequestBody OwnStockDto ownStockDto){
         return ResponseEntity.ok(ownStockService.save(ownStockDto));
+    }
+
+    @PostMapping("/profit")
+    public ResponseEntity<List<OwnStockDto>> getProfit(@RequestBody List<OwnStockDto> ownStockDto){
+        return ResponseEntity.ok(ownStockService.getProfit(ownStockDto));
+    }
+
+    @PostMapping("/totalProfit")
+    public ResponseEntity<OwnStockDto> getTotalProfit(@RequestBody List<OwnStockDto> ownStockDto){
+        return ResponseEntity.ok(ownStockService.getTotalProfit(ownStockDto));
     }
 
     @DeleteMapping("/delete")

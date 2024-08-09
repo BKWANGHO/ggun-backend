@@ -2,6 +2,8 @@ package store.ggun.admin.service;
 import store.ggun.admin.domain.model.Messenger;
 import store.ggun.admin.domain.model.AdminModel;
 import store.ggun.admin.domain.dto.AdminDto;
+import store.ggun.admin.domain.vo.Role;
+
 import java.util.Optional;
 
 public interface AdminService extends CommandService<AdminDto>, QueryService<AdminDto> {
@@ -10,26 +12,28 @@ public interface AdminService extends CommandService<AdminDto>, QueryService<Adm
     Messenger modifyRole(AdminDto adminDto);
     Messenger update(AdminDto adminDto);
     // query
-    Messenger login(AdminDto param);
     Boolean existsByUsername(String username);
-    Optional<AdminModel> findAdminByRole(String role);
-    Optional<AdminModel> findAdminByUsername(String enpName);
+    boolean findAdminByEmail(String email);
+    Optional<AdminModel> findAdminByUsername(String name);
     Boolean logout(String accessToken);
     Optional<AdminDto> findUserInfo(String username);
+
+
 
     default AdminModel dtoToEntity(AdminDto dto){
         return AdminModel.builder()
                 .id(dto.getId())
                 .username(dto.getUsername())
                 .password(dto.getPassword())
-                .enpName(dto.getEnpName())
-                .enpNum(dto.getEnpNum())
+                .name(dto.getName())
+                .number(dto.getNumber())
                 .department(dto.getDepartment())
                 .position(dto.getPosition())
                 .job(dto.getJob())
-                .enpEmail(dto.getEnpEmail())
+                .email(dto.getEmail())
                 .phone(dto.getPhone())
                 .role(dto.getRole())
+                .profile(dto.getProfile())
                 .token(dto.getToken())
                 .build();
     }
@@ -40,20 +44,18 @@ public interface AdminService extends CommandService<AdminDto>, QueryService<Adm
                 .id(ent.getId())
                 .username(ent.getUsername())
                 .password(ent.getPassword())
-                .enpName(ent.getEnpName())
-                .enpNum(ent.getEnpNum())
+                .name(ent.getName())
+                .number(ent.getNumber())
                 .department(ent.getDepartment())
                 .position(ent.getPosition())
                 .job(ent.getJob())
-                .enpEmail(ent.getEnpEmail())
+                .email(ent.getEmail())
                 .phone(ent.getPhone())
                 .role(ent.getRole())
+                .profile(ent.getProfile())
                 .token(ent.getToken())
                 .build();
     }
-
-
-
 }
 
 

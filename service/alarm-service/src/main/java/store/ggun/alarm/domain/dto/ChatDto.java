@@ -17,6 +17,7 @@ public class ChatDto {
     private String roomId;
     private String senderId;
     private String senderName;
+    private String receiverId;
     private String message;
     private LocalDateTime createdAt;
 }

@@ -23,6 +23,8 @@ import store.ggun.account.service.AccountService;
 import store.ggun.account.service.OwnStockService;
 import store.ggun.account.service.TradeService;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,8 +44,53 @@ public class OwnStockServiceImpl implements OwnStockService {
 
     @Override
     public List<OwnStockDto> findByAccount(Long id) {
-        return ownStockRepository.findByAccountId(id).stream().map(i->entityToDto(i)).toList();
+        return ownStockRepository.findByAccountId(id).stream().map(i -> entityToDto(i)).toList();
     }
+
+    @Override
+    public List<OwnStockDto> getProfit(List<OwnStockDto> ownStockDtoList) {
+        List<OwnStockDto> list = new ArrayList<>();
+        DecimalFormat df = new DecimalFormat("#.00");
+
+        for (OwnStockDto ownStockDto : ownStockDtoList) {
+            Optional<OwnStockModel> stock = ownStockRepository.findByAccountIdAndPdno(ownStockDto.getAccount(), ownStockDto.getPdno());
+            long buyingAmount = stock.get().getAvgPrvs() * stock.get().getPdQty();
+            long evaluatedAmount = ownStockDto.getAvgPrvs() * stock.get().getPdQty();
+            long profitLoss = buyingAmount - evaluatedAmount;
+            double profitRatio = profitLoss == 0 ?
+                    0 : Double.parseDouble(df.format(((double) profitLoss / buyingAmount) * 100));
+            list.add(OwnStockDto.builder()
+                    .profitRatio(profitRatio)
+                    .profitLoss(profitLoss)
+                    .avgPrvs(stock.get().getAvgPrvs())
+                    .evaluatedAmount(evaluatedAmount)
+                    .buyingAmount(buyingAmount)
+                    .build());
+        }
+        return list;
+    }
+
+    @Override
+    public OwnStockDto getTotalProfit(List<OwnStockDto> ownStockDtoList) {
+        List<OwnStockDto> list = getProfit(ownStockDtoList);
+        DecimalFormat df = new DecimalFormat("#.00");
+        long totalBuyingAmount =0;
+        long totalEvaluatedAmount =0;
+        long totalProfitLoss =0;
+        double totalProfitRatio =0;
+        for (OwnStockDto ownStockDto : list) {
+            totalProfitLoss += ownStockDto.getProfitLoss();
+            totalEvaluatedAmount += ownStockDto.getEvaluatedAmount();
+            totalBuyingAmount += ownStockDto.getBuyingAmount();
+        }
+        totalProfitRatio = totalProfitLoss == 0 ?
+                0 : Double.parseDouble(df.format(((double) totalProfitLoss / totalBuyingAmount) * 100));
+        return OwnStockDto.builder().buyingAmount(totalBuyingAmount)
+                .evaluatedAmount(totalEvaluatedAmount)
+                .profitLoss(totalProfitLoss)
+                .profitRatio(totalProfitRatio).build();
+    }
+
 
     @Override
     @Transactional
@@ -58,7 +105,21 @@ public class OwnStockServiceImpl implements OwnStockService {
         long totalPdQty = 0L;
         int result = 0;
         String msg = "";
-        String tradeHistory ="";
+        String tradeHistory = "";
+        TradeDto tradeDto = TradeDto.builder()
+                .ordDvsnName(ownStockDto.getOrdDvsnCd() == 1 ? "시장가" : "지정가")
+                .ordDvsnCd(ownStockDto.getOrdDvsnCd())
+                .sllBuyDvsnCd(ownStockDto.getSllBuyDvsnCd())
+                .pdno(ownStockDto.getPdno())
+                .prdtName(ownStockDto.getPrdtName())
+                .ordQty(ownStockDto.getPdQty())
+                .ccldPrvs(ownStockDto.getAvgPrvs())
+                .standardFee(0.015)
+                .baseTax(0.02)
+                .account(ownStockDto.getAccount())
+                .color(ownStockDto.getColor())
+                .tradeType(ownStockDto.getTradeType())
+                .build();
 
         if (ownStockDto.getSllBuyDvsnCd() == 1) {
 
@@ -67,8 +128,9 @@ public class OwnStockServiceImpl implements OwnStockService {
                     .balance(totalOrderAmount)
                     .tradeType("주식매수출금")
                     .briefs(ownStockDto.getPrdtName() + " 매수")
+                    .acpw(ownStockDto.getAcpw())
                     .build();
-             msg = accountService.withdraw(acDto).getMessage();
+            msg = accountService.withdraw(acDto).getMessage();
             if (msg.equals("SUCCESS")) {
                 if (stock.isEmpty()) {
                     ownStockRepository.save(OwnStockModel.builder()
@@ -80,50 +142,22 @@ public class OwnStockServiceImpl implements OwnStockService {
                             .account(account.get())
                             .build());
 
-                    TradeDto tradeDto = TradeDto.builder()
-                            .ordDvsnName(ownStockDto.getOrdDvsnCd()==1?"시장가":"지정가")
-                            .ordDvsnCd(ownStockDto.getOrdDvsnCd())
-                            .sllBuyDvsnCd(ownStockDto.getSllBuyDvsnCd())
-                            .pdno(ownStockDto.getPdno())
-                            .prdtName(ownStockDto.getPrdtName())
-                            .ordQty(ownStockDto.getPdQty())
-//                            .totCcldQty()
-                            .ccldPrvs(ownStockDto.getAvgPrvs())
-                            .standardFee(0.015)
-                            .baseTax(0.02)
-                            .account(ownStockDto.getAccount())
-                            .build();
+
 
                     tradeHistory = tradeService.save(tradeDto).getMessage();
 
-                    return Messenger.builder().message(msg).build();
+                    return Messenger.builder().message(tradeHistory.equals("SUCCESS") ? msg : "FAIURE").build();
 
                 } else {
                     totalPdQty = stock.get().getPdQty() + ownStockDto.getPdQty();
                     long avgPrvs = (totalOrderAmount + totalPurchaseAmount) / totalPdQty;
 
-//                    stock.get().setPdQty(totalPdQty);
-//                    stock.get().setAvgPrvs(avgPrvs);
-//                    ownStockRepository.save(stock.get());
-                    TradeDto tradeDto = TradeDto.builder()
-                            .ordDvsnName(ownStockDto.getOrdDvsnCd()==1?"시장가":"지정가")
-                            .ordDvsnCd(ownStockDto.getOrdDvsnCd())
-                            .sllBuyDvsnCd(ownStockDto.getSllBuyDvsnCd())
-                            .pdno(ownStockDto.getPdno())
-                            .prdtName(ownStockDto.getPrdtName())
-                            .ordQty(ownStockDto.getPdQty())
-//                            .totCcldQty()
-                            .ccldPrvs(ownStockDto.getAvgPrvs())
-                            .standardFee(0.015)
-                            .baseTax(0.02)
-                            .account(ownStockDto.getAccount())
-                            .build();
                     tradeHistory = tradeService.save(tradeDto).getMessage();
-                     result = ownStockRepository.modifyStock(stock.get().getId(), totalPdQty,avgPrvs);
+                    result = ownStockRepository.modifyStock(stock.get().getId(), totalPdQty, avgPrvs);
 
-                    return Messenger.builder().message(result==1 ? msg :"FAIURE").build();
+                    return Messenger.builder().message(result == 1 && tradeHistory.equals("SUCCESS") ? msg : "FAIURE").build();
                 }
-            }else {
+            } else {
                 return Messenger.builder().message(msg).build();
             }
         } else if (ownStockDto.getSllBuyDvsnCd() == 2) {
@@ -138,16 +172,16 @@ public class OwnStockServiceImpl implements OwnStockService {
 //                stock.get().setAvgPrvs( totalPurchaseAmount / totalPdQty);
 
                 if (totalPdQty == 0) {
-                    result = ownStockRepository.deleteByPdnoAndAccountId(ownStockDto.getPdno(), ownStockDto.getAccount());
-                }else {
+                    result = ownStockRepository.deleteByPdnoAndAccountIdAndTradeType(ownStockDto.getPdno(), ownStockDto.getAccount(), ownStockDto.getTradeType());
+                } else {
                     result = ownStockRepository.modifyStock(stock.get().getId(), totalPdQty);
                 }
                 String userAc = "";
                 String adminAc = "";
-                if(result ==1 ) {
-                    long fee = Math.round(totalOrderAmount*0.00015);
-                    long tax = Math.round(totalOrderAmount*0.002);
-                    long netIncome = totalOrderAmount - fee-tax;
+                if (result == 1) {
+                    long fee = Math.round(totalOrderAmount * 0.00015);
+                    long tax = Math.round(totalOrderAmount * 0.002);
+                    long netIncome = totalOrderAmount - fee - tax;
                     AccountDto UserAcDto = AccountDto.builder()
                             .id(account.get().getId())
                             .balance(netIncome)
@@ -160,21 +194,24 @@ public class OwnStockServiceImpl implements OwnStockService {
                             .tradeType("입금")
                             .briefs("사용자 매도수수료입금")
                             .build();
-                    TradeDto tradeDto = TradeDto.builder()
-                            .ordDvsnName(ownStockDto.getOrdDvsnCd()==1?"시장가":"지정가")
-                            .ordDvsnCd(ownStockDto.getOrdDvsnCd())
-                            .sllBuyDvsnCd(ownStockDto.getSllBuyDvsnCd())
-                            .pdno(ownStockDto.getPdno())
-                            .prdtName(ownStockDto.getPrdtName())
-                            .ordQty(ownStockDto.getPdQty())
-//                            .totCcldQty()
-                            .ccldPrvs(ownStockDto.getAvgPrvs())
-                            .sellingFee(fee)
-                            .sellingTax(tax)
-                            .standardFee(0.015)
-                            .baseTax(0.02)
-                            .account(ownStockDto.getAccount())
-                            .build();
+                    tradeDto.setSellingFee(fee);
+                    tradeDto.setSellingFee(tax);
+//                    TradeDto sellTradeDto = TradeDto.builder()
+//                            .ordDvsnName(ownStockDto.getOrdDvsnCd() == 1 ? "시장가" : "지정가")
+//                            .ordDvsnCd(ownStockDto.getOrdDvsnCd())
+//                            .sllBuyDvsnCd(ownStockDto.getSllBuyDvsnCd())
+//                            .pdno(ownStockDto.getPdno())
+//                            .prdtName(ownStockDto.getPrdtName())
+//                            .ordQty(ownStockDto.getPdQty())
+//                            .ccldPrvs(ownStockDto.getAvgPrvs())
+//                            .sellingFee(fee)
+//                            .sellingTax(tax)
+//                            .standardFee(0.015)
+//                            .baseTax(0.2)
+//                            .tradeType(ownStockDto.getTradeType())
+//                            .account(ownStockDto.getAccount())
+//                            .color(ownStockDto.getColor())
+//                            .build();
 
                     userAc = accountService.deposit(UserAcDto).getMessage();
                     adminAc = accountService.deposit(adimAcDto).getMessage();
@@ -182,13 +219,14 @@ public class OwnStockServiceImpl implements OwnStockService {
 
                 }
                 return Messenger.builder().message(userAc.equals("SUCCESS")
-                        &&adminAc.equals("SUCCESS")
-                        &&tradeHistory.equals("SUCCESS")
-                        ? "주문(매도) 완료": "FAIURE").build();
+                        && adminAc.equals("SUCCESS")
+                        && tradeHistory.equals("SUCCESS")
+                        ? "SUCCESS" : "FAIURE").build();
             }
         }
         return Messenger.builder().message("매도/매수 선택").build();
     }
+
 
     @Override
     public Messenger deleteById(Long id) {
@@ -217,7 +255,12 @@ public class OwnStockServiceImpl implements OwnStockService {
 
     @Override
     public boolean existsById(Long id) {
-        return false;
+        return ownStockRepository.existsById(id);
+    }
+    @Override
+    public boolean existsByAccount(Long id) {
+        AccountModel account = AccountModel.builder().id(id).build();
+        return ownStockRepository.existsByAccount(account);
     }
 
 

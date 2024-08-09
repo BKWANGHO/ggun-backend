@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import store.ggun.alarm.domain.model.RoleModel;
+
+import java.util.List;
 
 @Builder
 @Data
@@ -14,9 +17,9 @@ import org.springframework.stereotype.Component;
 
 public class UserDto {
     private String Id;
-    private String lastName;
-    // private String password; 프론트로 보내는 값은 비번을 지운다
-    private String firstName;
+    private String name;
     private String email;
-    // private List<RoleModel> roles;
+    private String password ;
+    private String profile;
+    private List<RoleModel> roles ;
 }

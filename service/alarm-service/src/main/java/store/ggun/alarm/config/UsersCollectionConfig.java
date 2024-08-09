@@ -123,7 +123,7 @@ public class UsersCollectionConfig {
                 Mono<UserModel> userMono = Mono.just(UserModel.builder()
                         .email(i + "@test.com")
                         .firstName("James" + i)
-                        .lastName("Byden " + i)
+                        .lastName("Gosling" + i)
                         .password("aaa")
                         .roles(null)
                         .build());

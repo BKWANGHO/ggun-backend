@@ -3,6 +3,7 @@ package store.ggun.user.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Arrays;
 @Getter
 @RequiredArgsConstructor

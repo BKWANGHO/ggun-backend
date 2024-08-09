@@ -2,6 +2,7 @@ package store.ggun.admin.controller;
 import store.ggun.admin.domain.model.Messenger;
 import store.ggun.admin.domain.model.AdminModel;
 import store.ggun.admin.domain.dto.AdminDto;
+import store.ggun.admin.domain.vo.Role;
 import store.ggun.admin.repository.jpa.AdminRepository;
 import store.ggun.admin.service.AdminService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +15,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController("adminController")
 @RequiredArgsConstructor
 @ApiResponses(value = {
@@ -67,35 +67,45 @@ public class AdminController {
         log.info("입력받은 정보 : {}", id );
         return ResponseEntity.ok(service.deleteById(id));
     }
-    @GetMapping("/exists-id")
+    @GetMapping("/existsId")
     public ResponseEntity<AdminDto> existsById(@RequestParam("id") Long id){
         service.existsById(0L);
         return ResponseEntity.ok(service.findById(id).orElseGet(AdminDto::new));
     }
     @GetMapping("/count")
+
     public ResponseEntity<Long> count()  {
         return ResponseEntity.ok(service.count());
     }
-    @PostMapping("/search-enpName")
+    @PostMapping("/searchName")
     public ResponseEntity<Optional<AdminModel>> findUsersByName(@RequestBody AdminDto param) {
         //log.info("입력받은 정보 : {}", name );
-        return ResponseEntity.ok(service.findAdminByUsername(param.getEnpName()));
-    }
-    @GetMapping("/search-role")
-    public ResponseEntity<Messenger> findUsersByRole(@RequestParam("Role") String role) {
-        service.findAdminByRole(role);
-        return ResponseEntity.ok(new Messenger());
+        return ResponseEntity.ok(service.findAdminByUsername(param.getName()));
     }
 
     @GetMapping("/logout")
     public ResponseEntity<Boolean> logout(@RequestHeader("Authorization") String accessToken){
         log.info("logout request : {}", accessToken);
-        var flag = service.logout(accessToken); // 토큰이 없으면 false 있으면 true
+        var flag = service.logout(accessToken);
         return ResponseEntity.ok(flag);
     }
     @GetMapping("/search")
     public ResponseEntity<Optional<AdminDto>> findUserInfo(@RequestHeader("Authorization") String accessToken) {
         log.info("입력받은 정보 : {}", accessToken );
         return ResponseEntity.ok(service.findUserInfo(accessToken));
+    }
+
+    @GetMapping("/searchEmail")
+    public ResponseEntity<Boolean> existsByEmail(@RequestParam("email") String email) {
+        log.info("Admin search email: {}", email);
+        Boolean flag = service.existsByUsername(email);
+        log.info("existsEmail : " + email);
+        return ResponseEntity.ok(flag);
+    }
+
+    @GetMapping("/findEmail")
+    public ResponseEntity<Boolean> findByEmail(@RequestParam("email") String email) {
+        log.info("Admin findByEmail: {}", email);
+        return ResponseEntity.ok(service.findAdminByEmail(email));
     }
 }

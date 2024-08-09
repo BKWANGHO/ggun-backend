@@ -1,5 +1,6 @@
 package store.ggun.account.service;
 
+import store.ggun.account.domain.dto.Messenger;
 import store.ggun.account.domain.model.AccountModel;
 import store.ggun.account.domain.model.OwnStockModel;
 import store.ggun.account.domain.dto.OwnStockDto;
@@ -34,6 +35,10 @@ public interface OwnStockService extends CommandService<OwnStockDto>, QueryServi
                 .build();
     }
 
-
+    boolean existsByAccount(Long id);
     List<OwnStockDto> findByAccount(Long id);
+
+    List<OwnStockDto> getProfit(List<OwnStockDto> ownStockDto);
+
+    OwnStockDto getTotalProfit(List<OwnStockDto> ownStockDto);
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @Document(collection = "users")
 public class UserModel {
 
-    @Id String userId ;
+    @Id Long userId ;
     String firstName ;
     String lastName ;
     String email;

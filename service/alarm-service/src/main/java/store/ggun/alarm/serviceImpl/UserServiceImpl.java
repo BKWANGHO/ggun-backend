@@ -17,7 +17,9 @@ public class UserServiceImpl {
 
 
     private final UserRepository userRepository;
-;
+
+    private final TokenServiceImpl tokenServiceImpl;
+
 
     public Flux<UserModel> getAllUsers() {
         return userRepository.findAll();
@@ -60,5 +62,4 @@ public class UserServiceImpl {
     public Flux<UserModel> findByLastName(String lastName) {
         return userRepository.findByLastName(lastName);
     }
-
 }

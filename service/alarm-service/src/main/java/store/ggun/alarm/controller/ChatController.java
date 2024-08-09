@@ -17,9 +17,8 @@ import store.ggun.alarm.service.RoomService;
 @RequestMapping("/chats")
 @RequiredArgsConstructor
 public class ChatController {
+
     private final RoomService roomService;
-
-
 
     @GetMapping("/checkServer")
     public Mono<String> getMethodName() {
@@ -39,7 +38,6 @@ public class ChatController {
         log.info("Find all rooms");
         return roomService.findAll();
     }
-
 
     @GetMapping("/recieve/{roomId}")
     public Flux<ServerSentEvent<ChatDto>> subscribeByRoomId(@PathVariable String roomId) {

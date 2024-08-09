@@ -41,4 +41,8 @@ public interface AccountService extends CommandService<AccountDto>, QueryService
 
     Messenger withdraw(AccountDto accountDto);
     Messenger acTransfer(AccountDto accountDto);
+
+    List<AccountDto> getAIAcno();
+
+    Messenger modifyByAccount(AccountDto accountDto);
 }

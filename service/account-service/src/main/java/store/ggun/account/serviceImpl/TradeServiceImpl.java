@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import store.ggun.account.service.TradeService;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,10 +74,20 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public List<TradeDto> findByProductNo(String prdtName) {
-        log.info("임플 확인 {}" ,repository.getListByProductName(prdtName) );
+    public List<TradeDto> findByProductName(String prdtName) {
         return repository.getListByProductName(prdtName)
                 .stream().map(i->entityToDto(i)).toList();
+    }
+
+
+    @Override
+    public List<TradeDto> findByDate(String start,String end) {
+        LocalDateTime startOfDay = LocalDateTime.parse(start).toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = LocalDateTime.parse(end).toLocalDate().atTime(LocalTime.MAX);
+
+        log.info("start: {}",startOfDay);
+        log.info("end: {}",endOfDay);
+        return repository.getListByDate(startOfDay,endOfDay).stream().map(i->entityToDto(i)).toList();
     }
 
 }

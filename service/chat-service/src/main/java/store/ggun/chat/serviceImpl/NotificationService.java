@@ -19,10 +19,6 @@ public class NotificationService {
     private final NotificationRepository chatRepository;
     private final Map<String, Sinks.Many<ServerSentEvent<NotificationModel>>> sinks = new HashMap<>();
 
-    public Flux<NotificationModel> receiveByRoomId(String id) {
-        return null;
-    }
-
     public Mono<Boolean> save(NotificationModel entity) {
         return Mono.just(entity)
                 .flatMap(i -> {

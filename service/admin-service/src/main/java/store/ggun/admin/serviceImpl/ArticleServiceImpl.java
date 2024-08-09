@@ -63,11 +63,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     }
 
-//        articleRepository.save(dtoToEntity(dto, boardRepository, userRepository));
-//        return Messenger.builder()
-//                .message("성공")
-//                .build();
-
     @Override
     public List<ArticleDto> findAll() throws SQLException {
         return articleRepository.findAll().stream().map(i -> entityToDto(i)).toList();

@@ -1,28 +1,23 @@
 package store.ggun.user.domain;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.stereotype.Component;
+import store.ggun.user.domain.vo.GatewayUser;
 
-import java.io.Serializable;
 import java.util.Map;
 
 @Getter
-@NoArgsConstructor
-@Component
-@Setter
-public class PrincipalUserDetails implements Serializable {
-    private UserModel user;
+public class PrincipalUserDetails {
+
+    private GatewayUser user;
+
     private Map<String, Object> attributes;
 
-    public PrincipalUserDetails(UserModel user) {
+    public PrincipalUserDetails(GatewayUser user) {
         this.user = user;
     }
 
-    public PrincipalUserDetails(UserModel user, Map<String, Object> attributes) {
+    public PrincipalUserDetails(GatewayUser user, Map<String, Object> attributes) {
         this.user = user;
         this.attributes = attributes;
     }
-
 }

@@ -24,8 +24,6 @@ public class TokenServiceImpl {
                 .refreshToken(refreshToken)
                 .expiration(Date.from(Instant.now().plusSeconds(refreshTokenExpiration)))
                 .build();
-
-        log.info("service - tokenmodel token : {}",token);
         tokenRepository.save(token)
                 .flatMap(i -> Mono.just(i.getRefreshToken())).subscribe();
 

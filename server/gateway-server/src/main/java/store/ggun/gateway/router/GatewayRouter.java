@@ -12,8 +12,8 @@ import store.ggun.gateway.config.UriConfiguration;
 
 
 @Configuration
-@RestController
 @EnableConfigurationProperties(UriConfiguration.class)
+@RestController
 public class GatewayRouter {
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {

@@ -1,9 +1,5 @@
 package store.ggun.user.repository;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.dsl.PathBuilder;
-import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
@@ -14,9 +10,7 @@ import store.ggun.user.domain.QUserModel;
 import store.ggun.user.domain.UserDto;
 import store.ggun.user.domain.UserModel;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -86,7 +80,6 @@ public class UserDaoImpl implements UserDao{
         user.setPhone(userDto.getPhone() != null?results.get(0).getPhone():null);
         user.setColor(userDto.getColor() != null?results.get(0).getColor():null);
         user.setInvestmentPropensity(userDto.getInvestmentPropensity() != null?results.get(0).getInvestmentPropensity():null);
-        log.info("repository{}", user);
         return user;
     }
 }

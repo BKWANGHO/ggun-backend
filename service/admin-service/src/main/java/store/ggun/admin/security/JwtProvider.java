@@ -18,21 +18,12 @@ import java.util.Date;
 @Component
 public class JwtProvider {
     Instant expiredDate = Instant.now().plus(1, ChronoUnit.DAYS);
+    Instant refreshExpiredDate = Instant.now().plus(7, ChronoUnit.DAYS);
 
     @Value("${jwt.iss}")
     private String issuer;
     private final SecretKey secretKey;
 
-//    public enum TokenType{REFRESH,ACCESS}
-//
-//    public TokenVo makeToken(UserDto userDto){
-//        return TokenVo.builder()
-//                .email(userDto.getUsername())
-//                .role(userDto.getJob())
-//                .refreshToken(createToken(userDto,Arrays.asList(userDto.getJob()),TokenType.REFRESH))
-//                .accessToken(createToken(userDto, Arrays.asList(userDto.getJob()),TokenType.ACCESS))
-//                .build();
-//    }
 
     public JwtProvider(@Value("${jwt.secret}") String secretKey) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey));
@@ -44,7 +35,6 @@ public class JwtProvider {
         String accessToken = Jwts.builder()
                 .issuer(issuer)
                 .signWith(secretKey)
-//                .expiration(Date.from((tokenType.equals(TokenType.ACCESS))?Instant.now().plus(1, ChronoUnit.DAYS):Instant.now().plus(1, ChronoUnit.MINUTES)))
                 .expiration(Date.from(expiredDate))
                 .claim("sub", "turing")
                 .claim("username", adminDto.getUsername())
@@ -56,23 +46,21 @@ public class JwtProvider {
         return accessToken;
 
     }
-//
-//    public String createUserToken(UserDto userDtDo){
-//
-//        String accessToken = Jwts.builder()
-//                .issuer(issuer)
-//                .signWith(secretKey)
-//                .expiration(Date.from(expiredDate))
-//                .claim("sub", "turing")
-//                .claim("username", userDtDo.getUsername())
-//                .claim("userId", userDtDo.getId())
-//                .compact();
-//
-//        log.info("로그인 성공으로 발급된 토큰 : " + accessToken);
-//        return accessToken;
-//
-//    }
 
+    public String refreshAccessToken(String refreshToken) {
+        Claims claims = getPayload(refreshToken);
+        Instant newExpiredDate = Instant.now().plus(1, ChronoUnit.DAYS);
+
+        return Jwts.builder()
+                .issuer(issuer)
+                .signWith(secretKey)
+                .expiration(Date.from(newExpiredDate))
+                .claim("sub", claims.getSubject())
+                .claim("username", claims.get("username"))
+                .claim("role", claims.get("role"))
+                .claim("adminId", claims.get("adminId"))
+                .compact();
+    }
 
     public String extractTokenFromHeader(HttpServletRequest request) {
         log.info("프론트에서 넘어온 리퀘스트 값 : {}", request.getServletPath());
@@ -82,7 +70,7 @@ public class JwtProvider {
                 bearerToken.substring(7): "undefined";
 
     }
-    // 토큰 발급이 잘됐는지 확인하기 위한 코드 (void로 바꾸고 리턴 없앰)
+
     public void printPayload(String accessToken) {
         String[] chunks = accessToken.split("\\.");
         Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -93,7 +81,7 @@ public class JwtProvider {
         log.info("accessToken Header :" +header);
         log.info("accessToken payload :" +payload);
     }
-    // getPayload = Claims의 집합 => secretKey 때문에 Jwt프로바이더에서 로직을 만들었음. (원래 인터셉터)
+
     public Claims getPayload(String token){
         try {
         return Jwts.parser()

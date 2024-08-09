@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,11 +31,17 @@ public class TradeController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<TradeDto>> findByProductNo(@RequestParam("prdtName") String prdtName){
-        log.info("입력받은 정보 : {}",prdtName);
-        log.info("리스폰스 정보 : {}",service.findByProductNo(prdtName));
-        return ResponseEntity.ok(service.findByProductNo(prdtName));
+    @GetMapping("/searchPdno")
+    public ResponseEntity<List<TradeDto>> findByProductName(@RequestParam("prdtName") String prdtName){
+        return ResponseEntity.ok(service.findByProductName(prdtName));
+    }
+    @GetMapping("/searchDate")
+    public ResponseEntity<List<TradeDto>> findByDate(@RequestParam(value = "start",required = true) String start,
+                                                     @RequestParam(value = "end",required = false) String end){
+        if (end == null) {
+            end = LocalDateTime.now().toString();
+        }
+        return ResponseEntity.ok(service.findByDate(start,end));
     }
 
     @GetMapping("/list")

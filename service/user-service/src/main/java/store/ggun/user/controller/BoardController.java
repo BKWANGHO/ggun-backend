@@ -1,14 +1,14 @@
 package store.ggun.user.controller;
 
-import store.ggun.user.domain.BoardDto;
-import store.ggun.user.domain.BoardModel;
-import store.ggun.user.repository.BoardRepository;
-import store.ggun.user.service.BoardService;
-import store.ggun.user.domain.Messenger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import store.ggun.user.domain.BoardDto;
+import store.ggun.user.domain.BoardModel;
+import store.ggun.user.domain.Messenger;
+import store.ggun.user.repository.BoardRepository;
+import store.ggun.user.service.BoardService;
 
 import java.util.List;
 

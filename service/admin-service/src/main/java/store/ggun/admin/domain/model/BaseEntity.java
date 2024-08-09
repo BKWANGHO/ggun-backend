@@ -19,7 +19,7 @@ public class BaseEntity {
     private LocalDateTime regDate;
 
     @LastModifiedDate
-    @Column(name="mod_date") // updatable = true는 디폴트값이라 생략
+    @Column(name="mod_date")
     private LocalDateTime modDate;
 
 }

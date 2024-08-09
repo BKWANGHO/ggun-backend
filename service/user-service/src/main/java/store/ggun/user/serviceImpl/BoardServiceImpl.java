@@ -1,15 +1,12 @@
 package store.ggun.user.serviceImpl;
 
-import store.ggun.user.domain.BoardDto;
-import store.ggun.user.domain.BoardModel;
-import store.ggun.user.repository.BoardRepository;
-import store.ggun.user.domain.Messenger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import store.ggun.user.domain.BoardDto;
+import store.ggun.user.domain.BoardModel;
+import store.ggun.user.domain.Messenger;
+import store.ggun.user.repository.BoardRepository;
 import store.ggun.user.service.BoardService;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

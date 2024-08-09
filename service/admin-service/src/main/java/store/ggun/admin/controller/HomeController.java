@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequiredArgsConstructor
 public class HomeController {
@@ -15,7 +14,7 @@ public class HomeController {
 
     @GetMapping("/admins/test")
     public String hello(){
-        return Date + "Welcome To admin service";
+        return Date + " " + "Welcome To admin service";
     }
     @PostMapping("/name")
     public Map<String, ?> name(@RequestBody Map<String,?> map){

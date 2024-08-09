@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString(exclude = "Id")
-@Document(collection = "users")
+@Document(collection = "members")
 public class UserModel {
 
     @Id String Id ;
@@ -21,7 +21,6 @@ public class UserModel {
     String email;
     String password ;
     String profile;
-
     List <RoleModel> roles ;
 
 }

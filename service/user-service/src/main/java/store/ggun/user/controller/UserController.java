@@ -1,22 +1,15 @@
 package store.ggun.user.controller;
 
 
-import org.apache.coyote.Response;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import store.ggun.user.config.PrincipalDetailsService;
-import store.ggun.user.domain.TokenVo;
-import store.ggun.user.domain.UserDto;
-import store.ggun.user.service.UserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.web.bind.annotation.*;
+import store.ggun.user.domain.TokenVo;
+import store.ggun.user.domain.UserDto;
+import store.ggun.user.service.UserService;
 
 import java.util.Optional;
 
@@ -37,16 +30,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/modify")
-    public ResponseEntity<TokenVo> modify(@RequestBody UserDto userDto){
-        long id = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        userDto.setId(id);
-        log.info("123123123{}",userDto);
+    public ResponseEntity<TokenVo> modify(@RequestBody UserDto userDto, @RequestHeader String id){
+        userDto.setId(Long.valueOf(id));
         return ResponseEntity.ok(userService.modify(userDto));
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<TokenVo> delete(){
-        long id = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+    public ResponseEntity<TokenVo> delete(@RequestHeader Long id){
         return ResponseEntity.ok(userService.delete(id));
     }
 

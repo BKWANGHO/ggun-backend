@@ -25,14 +25,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @RestController
-@RequestMapping("/file-record")
+@RequestMapping("/fileRecord")
 @Slf4j
 @RequiredArgsConstructor
 public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping(value = "/upload-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/uploadFiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<List<FileDto>> uploadFiles(ServerWebExchange exchange) {
         return exchange.getMultipartData()
                 .flatMapMany(multipart -> {

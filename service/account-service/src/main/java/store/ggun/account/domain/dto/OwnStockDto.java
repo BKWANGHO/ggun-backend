@@ -22,9 +22,15 @@ public class OwnStockDto {
     private Long avgPrvs;
     private String tradeType;
     private Long account;
+    private String acpw;
     private int sllBuyDvsnCd;
     private int ordDvsnCd;
+    private double profitRatio;
+    private long profitLoss;
+    private long evaluatedAmount;
+    private long buyingAmount;
     private String regDate;
     private String modDate;
+    private String color;
 
 }

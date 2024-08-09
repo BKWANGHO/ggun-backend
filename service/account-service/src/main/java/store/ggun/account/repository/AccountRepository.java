@@ -5,11 +5,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import store.ggun.account.domain.dto.AccHistoryDto;
+import store.ggun.account.domain.dto.Messenger;
 import store.ggun.account.domain.model.AccountModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import store.ggun.account.domain.model.Box;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +27,11 @@ public interface AccountRepository extends JpaRepository<AccountModel, Long> {
     @Query("update accounts set balance = :balance where id = :id")
     int modifyBalanceById(@Param("id") Long id,@Param("balance") Long balance);
 
+    @Modifying
+    @Query("update accounts set bank = :bank,refundAcno = :refundAcno where id = :id")
+    int modifyAccountById(@Param("id") Long id,@Param("bank") String bank,@Param("refundAcno") String refundAcno);
+
     boolean existsByUserIdAndAcType(Long id, String acType);
+
+    List<AccountModel> findByAcType(String acType);
 }

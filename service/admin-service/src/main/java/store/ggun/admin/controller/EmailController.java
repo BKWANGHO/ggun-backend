@@ -6,7 +6,6 @@ import store.ggun.admin.domain.model.EmailModel;
 import store.ggun.admin.serviceImpl.EmailServiceImpl;
 
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/email")

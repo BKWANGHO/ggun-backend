@@ -1,10 +1,7 @@
 package store.ggun.user.serviceImpl;
 
-import com.querydsl.core.Tuple;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import store.ggun.user.domain.ArticleDto;
 import store.ggun.user.domain.ArticleModel;
@@ -32,12 +29,30 @@ public class ArticleServiceImpl implements ArticleService {
                         .build())
                 .boardId(model.getBoardId())
                 .build();
-        ArticleModel article1 = repository.save(article);
-        return article1;
+        repository.save(article);
+        return null;
     }
 
     @Override
     public List<ArticleDto> findAllByBoardId(String boardId) {
         return repository.findByBoardIdDao(boardId);
+    }
+
+    @Override
+    public ArticleModel modify(ArticleDto model, String id) {
+        Long writerId = Long.valueOf(id);
+        ArticleModel article=writerId.equals(repository.findByBoardIdQuery(model.getId()))?repository.modifyArticle(model,id): null;
+        boolean a = model.getTitle() == null || model.getTitle().equals(article.getTitle());
+        boolean b = model.getContent() == null || model.getContent().equals(article.getContent());
+        return a&&b?article:null;
+    }
+
+    @Override
+    public Messenger delete(Long model, String id) {
+        Long writerId = Long.valueOf(id);
+        if(writerId.equals(repository.findByBoardIdQuery(model)))repository.deleteQuery(model);
+        return Messenger.builder()
+                .message(repository.existsById(model)?"FAIL":"SUCCESS")
+                .build();
     }
 }

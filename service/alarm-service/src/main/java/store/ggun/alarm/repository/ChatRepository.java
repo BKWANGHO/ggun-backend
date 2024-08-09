@@ -7,6 +7,5 @@ import store.ggun.alarm.domain.model.ChatModel;
 
 @Repository
 public interface ChatRepository extends ReactiveMongoRepository<ChatModel, String>{
-
     Flux<ChatModel> findByRoomId(String roomId);
 }

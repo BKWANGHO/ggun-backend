@@ -1,7 +1,12 @@
 package store.ggun.admin.domain.model;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import store.ggun.admin.domain.vo.Role;
+
 import java.util.List;
+
+
 
 
 @Entity(name = "admins")
@@ -18,19 +23,17 @@ public class AdminModel extends BaseEntity {
     private Long id;
     private String username;
     private String password;
-    @Column(name = "enp_name")
-    private String enpName; //사원 이름 Employee name 약어
-    @Column(name = "enp_num")
-    private String enpNum; // 사원번호
-    private String department; // 부서
-    private String position; // 직책
-    private String job; // 직무
-    @Column(name = "enp_email")
-    private String enpEmail;
+    private String name;
+    private String number;
+    private String department;
+    private String position;
+    private String job;
+    private String email;
     private String phone;
-    private String role; // 권한
     private String token;
-
+    private String profile;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ArticleModel> articleModel;

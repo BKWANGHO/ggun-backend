@@ -6,7 +6,9 @@ import store.ggun.account.domain.model.AccountModel;
 import store.ggun.account.domain.dto.AccountDto;
 import store.ggun.account.repository.AccountRepository;
 import store.ggun.account.domain.dto.Messenger;
+import store.ggun.account.repository.OwnStockRepository;
 import store.ggun.account.service.AccountService;
+import store.ggun.account.service.OwnStockService;
 import store.ggun.account.service.UtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +28,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccHistoryRepository accHistoryRepository;
     private final UtilService util;
     private final PasswordEncoder passwordEncoder;
+    private final OwnStockRepository ownStockRepository;
 
     @Override
     public Messenger save(AccountDto accountDto) {
@@ -62,7 +65,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Messenger deleteById(Long id) {
-        return null;
+        AccountModel accountModel = repository.findById(id).get();
+        boolean balance = accountModel.getBalance()==0;
+
+        if(!ownStockRepository.existsByAccount(accountModel) && balance ){
+            repository.deleteById(id);
+            return Messenger.builder()
+                    .message(accountModel instanceof AccountModel ? "SUCCESS" : "FAIURE")
+                    .build();
+        }  else {
+            return Messenger.builder()
+                    .message("계좌에 자산이 있습니다.")
+                    .build();
+        }
     }
 
     @Override
@@ -71,8 +86,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
+    public Messenger modifyByAccount(AccountDto accountDto) {
+        return Messenger.builder()
+                .message(repository.modifyAccountById(accountDto.getId(),accountDto.getBank(),accountDto.getRefundAcno())== 0 ?
+                        "FAIURE" : "SUCCESS")
+                .build();
+    }
+
+    @Override
     public List<AccountDto> findAll() {
-        return null;
+        return repository.findAll().stream().map(i->entityToDto(i)).toList();
     }
 
     @Override
@@ -84,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public long count() {
-        return 0;
+        return repository.count();
     }
 
     @Override
@@ -128,10 +152,8 @@ public class AccountServiceImpl implements AccountService {
         AccountModel ac = repository.findById(accountDto.getId()).get();
         long txBalance = ac.getBalance() - accountDto.getBalance();
 
-        if (passwordEncoder.matches(accountDto.getAcpw(), ac.getAcpw())) {
+        if (passwordEncoder.matches(accountDto.getAcpw(), ac.getAcpw()) || accountDto.getAcpw().equals(ac.getAcpw())) {
             if (txBalance >= 0) {
-//            ac.setBalance(txBalance);
-//            repository.save(ac);
                 int result = repository.modifyBalanceById(ac.getId(), txBalance);
 
                 accHistoryRepository.save(AccHistoryModel.builder()
@@ -184,6 +206,12 @@ public class AccountServiceImpl implements AccountService {
                     .message("FAIURE")
                     .build();
         }
+    }
+
+    @Override
+    public List<AccountDto> getAIAcno() {
+        return repository.findByAcType("02")
+                .stream().map(i -> entityToDto(i)).toList();
     }
 
 

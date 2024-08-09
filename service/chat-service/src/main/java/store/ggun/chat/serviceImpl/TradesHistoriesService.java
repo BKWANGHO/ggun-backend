@@ -19,7 +19,6 @@ public class TradesHistoriesService {
     private final TradesHistoriesRepository repository;
 
     public Mono<Messenger> save(TradesHistriesModel model) {
-        log.info("service에서 넘어온 값 : {}",model.toString());
         return repository.save(model).flatMap(i -> Mono.just(Messenger.builder().message("SUCCESS").build()))
                 .switchIfEmpty(Mono.just(Messenger.builder().message("FAILURE").build()));
     }
